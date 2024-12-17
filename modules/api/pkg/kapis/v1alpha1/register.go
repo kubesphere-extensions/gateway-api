@@ -28,4 +28,7 @@ func AddRouterGroup(engin *gin.Engine, client rtclient.Client) {
 	group.PUT("/namespaces/:namespace/gateways", handler.UpdateGateway)
 	group.DELETE("/namespaces/:namespace/gateways/:gateway", handler.DeleteGateway)
 
+	group.GET("/gatewayclasses", handler.ListGatewayClass)
+	group.GET("/gatewayclasses/:gatewayclass", handler.GetGatewayClass)
+	group.GET("/gatewayclasses/:gatewayclass/listeners", handler.GetListeners)
 }

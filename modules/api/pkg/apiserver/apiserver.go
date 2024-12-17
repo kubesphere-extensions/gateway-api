@@ -17,7 +17,7 @@ type APIServer struct {
 	Server *http.Server
 
 	// webservice container, where all webservice defines
-	engine *gin.Engine
+	Engine *gin.Engine
 
 	// controller-runtime client
 	RuntimeClient rtclient.Client
@@ -25,20 +25,20 @@ type APIServer struct {
 
 func (s *APIServer) installAPIs() {
 	// add health check APIs
-	s.engine.GET("/healthz", func(c *gin.Context) {
+	s.Engine.GET("/healthz", func(c *gin.Context) {
 		_ = healthz.Ping(c.Request)
 	})
-	s.engine.GET("/readyz", func(c *gin.Context) {
+	s.Engine.GET("/readyz", func(c *gin.Context) {
 		_ = healthz.Ping(c.Request)
 	})
 
-	v1alpha1.AddRouterGroup(s.engine, s.RuntimeClient)
+	v1alpha1.AddRouterGroup(s.Engine, s.RuntimeClient)
 }
 
 func (s *APIServer) PrepareRun() error {
-	s.engine = gin.New()
-	s.engine.Use(gin.Recovery())
-	s.engine.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+	s.Engine = gin.New()
+	s.Engine.Use(gin.Recovery())
+	s.Engine.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 		// your custom format
 		return fmt.Sprintf("[%s] %s - \"%s %s %s %d %s \"%s\" %s\"\n",
 			param.TimeStamp.Format(time.RFC1123),
@@ -54,7 +54,7 @@ func (s *APIServer) PrepareRun() error {
 	}))
 	s.installAPIs()
 
-	s.Server.Handler = s.engine
+	s.Server.Handler = s.Engine
 
 	return nil
 }
@@ -65,7 +65,7 @@ func (s *APIServer) Run(ctx context.Context) error {
 		_ = s.Server.Shutdown(ctx)
 	}()
 
-	s.Server.Handler = s.engine
+	s.Server.Handler = s.Engine
 
 	klog.Infof("Start listening on %s", s.Server.Addr)
 	if err := s.Server.ListenAndServe(); err != nil {
